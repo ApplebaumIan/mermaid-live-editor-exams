@@ -1,13 +1,12 @@
 <script lang="ts">
   import { dev } from '$app/environment';
-  import { base } from '$app/paths';
   import Actions from '$lib/components/Actions.svelte';
   import Card from '$lib/components/Card/Card.svelte';
   import Editor from '$lib/components/Editor.svelte';
   import History from '$lib/components/History/History.svelte';
   import Preset from '$lib/components/Preset.svelte';
   import View from '$lib/components/View.svelte';
-  import type { DocumentationConfig, EditorMode, Tab, ValidatedState } from '$lib/types';
+  import type { EditorMode, Tab, ValidatedState } from '$lib/types';
   import { env } from '$lib/util/env';
   import { inputStateStore, stateStore, updateCodeStore } from '$lib/util/state';
   import { cmdKey, initHandler, syncDiagram } from '$lib/util/util';
@@ -15,9 +14,8 @@
 
   const MCBaseURL = dev ? 'http://localhost:5174' : 'https://mermaidchart.com';
   let activeTabID = 'code';
-  stateStore.subscribe(({ code, editorMode }: ValidatedState) => {
+  stateStore.subscribe(({ editorMode }: ValidatedState) => {
     activeTabID = editorMode;
-    const codeTypeMatch = /(\S+)\s/.exec(code);
   });
 
   const tabSelectHandler = (message: CustomEvent<Tab>) => {
@@ -87,7 +85,6 @@
               data-cy="sync"
               on:click={syncDiagram}><i class="fas fa-sync" /></button>
           {/if}
-
         </div>
 
         <Editor />
