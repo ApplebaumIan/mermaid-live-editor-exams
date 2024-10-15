@@ -142,7 +142,6 @@
 </script>
 
 <div class="flex h-full flex-col overflow-hidden">
-  <Navbar />
   <div class="flex flex-1 overflow-hidden">
     <div class="hidden flex-col md:flex" id="editorPane" style="width: 40%">
       <Card on:select={tabSelectHandler} {tabs} isCloseable={false} {activeTabID} title="Mermaid">
