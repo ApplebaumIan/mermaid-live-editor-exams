@@ -164,13 +164,6 @@
               on:click={syncDiagram}><i class="fas fa-sync" /></button>
           {/if}
 
-          <button
-            class="btn btn-secondary btn-xs"
-            title="View documentation for {docKey.replace('Diagram', '')} diagram">
-            <a target="_blank" href={docURL} data-cy="docs">
-              <i class="fas fa-book mr-1" />Docs
-            </a>
-          </button>
         </div>
 
         <Editor />
