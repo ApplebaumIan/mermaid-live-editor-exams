@@ -126,11 +126,6 @@
               disabled={$stateStore.rough}
               bind:checked={$inputStateStore.panZoom} />
           </label>
-          <a
-            href={`${base}/view#${$stateStore.serialized}`}
-            target="_blank"
-            class="btn btn-secondary btn-xs gap-1"
-            title="View diagram in new page"><i class="fas fa-external-link-alt" />Full screen</a>
           {#if env.isEnabledMermaidChartLinks}
             <a
               href={`${MCBaseURL}/app/plugin/save?state=${$stateStore.serialized}`}
