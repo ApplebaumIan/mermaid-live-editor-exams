@@ -1,6 +1,5 @@
 <script lang="ts">
   import { dev } from '$app/environment';
-  import Actions from '$lib/components/Actions.svelte';
   import Card from '$lib/components/Card/Card.svelte';
   import Editor from '$lib/components/Editor.svelte';
   import History from '$lib/components/History/History.svelte';
@@ -91,7 +90,6 @@
 
       <div class="-mt-2">
         <History />
-        <Actions />
       </div>
     </div>
     <div id="resizeHandler" class="hidden md:block" />
