@@ -55,43 +55,47 @@
   {/snippet}
 
   <Navbar mobileToggle={isMobile ? mobileToggle : undefined}>
-    <Toggle bind:pressed={isHistoryOpen} size="sm">
+    <Toggle bind:pressed={isHistoryOpen} size="sm" aria-label="Toggle History">
       <HistoryIcon />
     </Toggle>
   </Navbar>
 
   <div class="flex flex-1 flex-col overflow-hidden" bind:clientWidth={width}>
-    <div
-      class={[
-        'size-full',
-        isMobile && ['w-[200%] duration-300', isViewMode && '-translate-x-1/2']
-      ]}>
-      <Resizable.PaneGroup
-        direction="horizontal"
-        autoSaveId="liveEditor"
-        class="gap-4 p-2 pt-0 sm:gap-0 sm:p-6 sm:pt-0">
-        <Resizable.Pane bind:this={editorPane} defaultSize={30} minSize={15}>
-          <div class="flex h-full flex-col gap-4 sm:gap-6">
-            <Editor {isMobile} />
-          </div>
-        </Resizable.Pane>
-        <Resizable.Handle class="mr-1 hidden opacity-0 sm:block" />
-        <Resizable.Pane minSize={15} class="relative flex h-full flex-1 flex-col overflow-hidden">
-          <View {panZoomState} shouldShowGrid={$stateStore.grid} />
-          <div class="absolute top-0 right-0"><PanZoomToolbar {panZoomState} /></div>
-          <div class="absolute right-0 bottom-0"><VersionSecurityToolbar /></div>
-          <div class="absolute bottom-0 left-0 sm:left-5"><SyncRoughToolbar /></div>
-        </Resizable.Pane>
-        {#if isHistoryOpen}
-          <Resizable.Handle class="ml-1 hidden opacity-0 sm:block" />
-          <Resizable.Pane
-            minSize={15}
-            defaultSize={30}
-            class="hidden h-full flex-grow flex-col sm:flex">
-            <History />
+    {#if isMobile && isHistoryOpen}
+      <History />
+    {:else}
+      <div
+        class={[
+          'size-full',
+          isMobile && ['w-[200%] duration-300', isViewMode && '-translate-x-1/2']
+        ]}>
+        <Resizable.PaneGroup
+          direction="horizontal"
+          autoSaveId="liveEditor"
+          class="gap-4 p-2 pt-0 sm:gap-0 sm:p-6 sm:pt-0">
+          <Resizable.Pane bind:this={editorPane} defaultSize={30} minSize={15}>
+            <div class="flex h-full flex-col gap-4 sm:gap-6">
+              <Editor {isMobile} />
+            </div>
           </Resizable.Pane>
-        {/if}
-      </Resizable.PaneGroup>
-    </div>
+          <Resizable.Handle class="mr-1 hidden opacity-0 sm:block" />
+          <Resizable.Pane minSize={15} class="relative flex h-full flex-1 flex-col overflow-hidden">
+            <View {panZoomState} shouldShowGrid={$stateStore.grid} />
+            <div class="absolute top-0 right-0"><PanZoomToolbar {panZoomState} /></div>
+            <div class="absolute right-0 bottom-0"><VersionSecurityToolbar /></div>
+            <div class="absolute bottom-0 left-0 sm:left-5"><SyncRoughToolbar /></div>
+          </Resizable.Pane>
+          {#if isHistoryOpen}
+            <Resizable.Handle class="ml-1 hidden opacity-0 sm:block" />
+            <Resizable.Pane
+              minSize={15}
+              defaultSize={30}
+              class="hidden h-full flex-grow flex-col sm:flex">
+              <History />
+            </Resizable.Pane>
+          {/if}
+        </Resizable.PaneGroup>
+      </div>
+    {/if}
   </div>
 </div>
