@@ -1,42 +1,45 @@
-<label for="privacyModal" class="btn btn-ghost flex gap-2">
-  <i class="fa-solid fa-shield-halved text-xl"></i> Security
-</label>
+<script>
+  import ExternalLinkWrapper from '$/components/ExternalLinkWrapper.svelte';
+  import * as Dialog from '$/components/ui/dialog';
+  import ShieldIcon from '~icons/material-symbols/shield-lock-outline-rounded';
+</script>
 
-<input type="checkbox" id="privacyModal" class="modal-toggle" />
-<div class="modal" role="dialog">
-  <div class="modal-box flex flex-col gap-4 text-base-content">
-    <h1 class="text-3xl font-bold">Data security</h1>
-    <p>
-      <span class="text-xl font-extrabold">
-        The content of the diagrams you create never leaves your browser.
-      </span>
-      It's stored in the URL, and the browser's local storage only.
-    </p>
-    <p>
-      Mermaid live editor is a fully client side application, that will also work as an offline <a
-        href="https://web.dev/explore/progressive-web-apps"
-        class="link"
-        target="_blank">
-        PWA.
-      </a>
-    </p>
-    <p>
-      The only server we have is a self hosted version of the open source and privacy friendly
-      Plausible Analytics. We only collect data related to actions performed, like the type of
-      diagram rendered, number of times a feature was used, etc. <br /> All the data we collect is
-      anonymized and
-      <a href="https://p.mermaid.live/mermaid.live" class="link" target="_blank">
-        available publicly.
-      </a>
-    </p>
+<Dialog.Root>
+  <Dialog.Trigger>
+    <ShieldIcon />
+  </Dialog.Trigger>
+  <Dialog.Content class="max-h-full overflow-hidden overflow-y-auto p-12">
+    <Dialog.Header>
+      <Dialog.Title class="flex items-center gap-2 text-xl">
+        <ShieldIcon class="size-8 text-green-700" />
+        Data security
+      </Dialog.Title>
+    </Dialog.Header>
 
+    <p class="text-xl font-semibold">Your diagrams never leave your browser.</p>
+    <p>They're only stored in the URL and your browser's local storage.</p>
     <p>
-      Additional services like the external PNG/SVG/Kroki links and "Save to Mermaid Chart" feature
-      will share your diagram with the respective 3rd party service.
+      This is a fully open source, client-side app deployed on <a
+        href="https://github.com/mermaid-js/mermaid-live-editor/deployments"
+        class="underline"
+        target="_blank">GitHub Pages</a>
+      that works offline as a
+      <a href="https://web.dev/explore/progressive-web-apps" target="_blank">Progressive Web App</a
+      >.
     </p>
-
-    <label class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2" for="privacyModal">
-      X
-    </label>
-  </div>
-</div>
+    <p>
+      We use self hosted, privacy-friendly Plausible Analytics to collect anonymous usage metadata
+      (diagram types, feature usage, etc.). All data is <a
+        href="https://p.mermaid.live/mermaid.live"
+        class="underline"
+        target="_blank">publicly available</a
+      >.
+    </p>
+    <ExternalLinkWrapper domain="example.com" isVisible>
+      <p class="text-left">
+        External services (PNG/SVG/Kroki exports, "Save to Mermaid Chart", "Repair with AI", etc)
+        will share your diagram with those 3rd parties, and are highlighted in the UI on hover.
+      </p>
+    </ExternalLinkWrapper>
+  </Dialog.Content>
+</Dialog.Root>

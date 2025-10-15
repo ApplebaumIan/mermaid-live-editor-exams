@@ -1,166 +1,102 @@
 <script lang="ts">
-  import { dev } from '$app/environment';
-  import Card from '$lib/components/Card/Card.svelte';
-  import Editor from '$lib/components/Editor.svelte';
-  import History from '$lib/components/History/History.svelte';
-  import View from '$lib/components/View.svelte';
-  import type { EditorMode, Tab, ValidatedState } from '$lib/types';
-  import { env } from '$lib/util/env';
-  import { inputStateStore, stateStore, updateCodeStore } from '$lib/util/state';
-  import { cmdKey, initHandler, syncDiagram } from '$lib/util/util';
+  import Editor from '$/components/Editor.svelte';
+  import History from '$/components/History/History.svelte';
+  import Navbar from '$/components/Navbar.svelte';
+  import PanZoomToolbar from '$/components/PanZoomToolbar.svelte';
+  import SyncRoughToolbar from '$/components/SyncRoughToolbar.svelte';
+  import * as Resizable from '$/components/ui/resizable';
+  import { Switch } from '$/components/ui/switch';
+  import { Toggle } from '$/components/ui/toggle';
+  import VersionSecurityToolbar from '$/components/VersionSecurityToolbar.svelte';
+  import View from '$/components/View.svelte';
+  import { PanZoomState } from '$/util/panZoom';
+  import { stateStore } from '$/util/state';
+  import { logEvent } from '$/util/stats';
+  import { initHandler } from '$/util/util';
   import { onMount } from 'svelte';
+  import HistoryIcon from '~icons/material-symbols/history';
 
-  const MCBaseURL = dev ? 'http://localhost:5174' : 'https://mermaidchart.com';
-  let activeTabID = 'code';
-  stateStore.subscribe(({ editorMode }: ValidatedState) => {
-    activeTabID = editorMode;
-  });
+  const panZoomState = new PanZoomState();
 
-  const tabSelectHandler = (message: CustomEvent<Tab>) => {
-    const editorMode: EditorMode = message.detail.id === 'code' ? 'code' : 'config';
-    updateCodeStore({ editorMode });
-  };
 
-  const tabs: Tab[] = [
-    {
-      id: 'code',
-      title: 'Code',
-      icon: 'fas fa-code'
-    },
-    {
-      id: 'config',
-      title: 'Config',
-      icon: 'fas fa-cogs'
-    }
-  ];
+  let width = $state(0);
+  let isMobile = $derived(width < 640);
+  let isViewMode = $state(false);
 
   onMount(async () => {
     await initHandler();
-    const resizer = document.querySelector<HTMLElement>('#resizeHandler');
-    const element = document.querySelector<HTMLElement>('#editorPane');
-    if (!resizer || !element) {
-      console.debug('Failed to find resize handler or editor pane', { resizer, element });
-      return;
-    }
-    const resize = ({ pageX }: { pageX: number }) => {
-      const newWidth = pageX - element.getBoundingClientRect().left;
-      if (newWidth > 50) {
-        element.style.width = `${newWidth}px`;
-      }
-    };
-
-    const stopResize = () => {
-      window.removeEventListener('mousemove', resize);
-    };
-    resizer.addEventListener('mousedown', (event) => {
-      event.preventDefault();
-      window.addEventListener('mousemove', resize);
-      window.addEventListener('mouseup', stopResize);
+    window.addEventListener('appinstalled', () => {
+      logEvent('pwaInstalled', { isMobile });
     });
+  });
+
+  let isHistoryOpen = $state(false);
+
+  let editorPane: Resizable.Pane | undefined;
+  $effect(() => {
+    if (isMobile) {
+      editorPane?.resize(50);
+    }
   });
 </script>
 
 <div class="flex h-full flex-col overflow-hidden">
-  <div class="flex flex-1 overflow-hidden">
-    <div class="hidden flex-col md:flex" id="editorPane" style="width: 40%">
-      <Card on:select={tabSelectHandler} {tabs} isCloseable={false} {activeTabID} title="Mermaid">
-        <div slot="actions" class="flex flex-row items-center">
-          <div class="form-control flex-row items-center">
-            <label class="label cursor-pointer" for="autoSync">
-              <span> Auto sync</span>
-              <input
-                type="checkbox"
-                class="toggle {$stateStore.autoSync ? 'btn-secondary' : 'toggle-primary'} ml-1"
-                id="autoSync"
-                bind:checked={$inputStateStore.autoSync} />
-            </label>
-          </div>
-
-          {#if !$stateStore.autoSync}
-            <button
-              class="btn btn-secondary btn-xs mr-1"
-              title="Sync Diagram ({cmdKey} + Enter)"
-              data-cy="sync"
-              on:click={syncDiagram}><i class="fas fa-sync" /></button>
-          {/if}
-        </div>
-
-        <Editor />
-      </Card>
-
-      <div class="-mt-2">
-        <History />
-      </div>
+  {#snippet mobileToggle()}
+    <div class="flex items-center gap-2">
+      Edit
+      <Switch
+        id="editorMode"
+        class="data-[state=checked]:bg-accent"
+        bind:checked={isViewMode}
+        onclick={() => {
+          logEvent('mobileViewToggle');
+        }} />
+      View
     </div>
-    <div id="resizeHandler" class="hidden md:block" />
-    <div class="flex flex-1 flex-col overflow-hidden">
-      <Card title="Diagram" isCloseable={false}>
-        <div slot="actions" class="flex flex-row items-center gap-2">
-          <label
-            class="label flex cursor-pointer gap-1 py-0"
-            title="Rough mode is in beta. Features like clickable nodes, Pan & Zoom, will be disabled."
-            for="rough">
-            <span>Rough</span>
-            <input
-              type="checkbox"
-              class="toggle {$stateStore.rough ? 'btn-secondary' : 'toggle-primary'}"
-              id="rough"
-              bind:checked={$inputStateStore.rough} />
-          </label>
-          <label
-            class="label flex cursor-pointer gap-1 py-0"
-            title={$stateStore.rough ? 'Pan & Zoom is disabled in rough mode.' : ''}
-            for="panZoom">
-            <span>Pan & Zoom</span>
-            <input
-              type="checkbox"
-              class="toggle {$stateStore.panZoom ? 'btn-secondary' : 'toggle-primary'}"
-              id="panZoom"
-              disabled={$stateStore.rough}
-              bind:checked={$inputStateStore.panZoom} />
-          </label>
-          {#if env.isEnabledMermaidChartLinks}
-            <a
-              href={`${MCBaseURL}/app/plugin/save?state=${$stateStore.serialized}`}
-              target="_blank"
-              class="btn btn-secondary btn-xs gap-1 bg-[#FF3570]"
-              title="Save diagram in Mermaid Chart"
-              ><img src="./mermaidchart-logo.svg" class="h-5 w-5" alt="Mermaid chart logo" />Save to
-              Mermaid Chart</a>
-          {/if}
-        </div>
+  {/snippet}
 
-        <div class="flex-1 overflow-auto">
-          <View />
-        </div>
-      </Card>
-      <div class="mx-2 rounded p-2 shadow md:hidden">
-        Code editing not supported on mobile. Please use a desktop browser.
+  <Navbar mobileToggle={isMobile ? mobileToggle : undefined}>
+    <Toggle bind:pressed={isHistoryOpen} size="sm" aria-label="Toggle History">
+      <HistoryIcon />
+    </Toggle>
+  </Navbar>
+
+  <div class="flex flex-1 flex-col overflow-hidden" bind:clientWidth={width}>
+    {#if isMobile && isHistoryOpen}
+      <History />
+    {:else}
+      <div
+        class={[
+          'size-full',
+          isMobile && ['w-[200%] duration-300', isViewMode && '-translate-x-1/2']
+        ]}>
+        <Resizable.PaneGroup
+          direction="horizontal"
+          autoSaveId="liveEditor"
+          class="gap-4 p-2 pt-0 sm:gap-0 sm:p-6 sm:pt-0">
+          <Resizable.Pane bind:this={editorPane} defaultSize={30} minSize={15}>
+            <div class="flex h-full flex-col gap-4 sm:gap-6">
+              <Editor {isMobile} />
+            </div>
+          </Resizable.Pane>
+          <Resizable.Handle class="mr-1 hidden opacity-0 sm:block" />
+          <Resizable.Pane minSize={15} class="relative flex h-full flex-1 flex-col overflow-hidden">
+            <View {panZoomState} shouldShowGrid={$stateStore.grid} />
+            <div class="absolute top-0 right-0"><PanZoomToolbar {panZoomState} /></div>
+            <div class="absolute right-0 bottom-0"><VersionSecurityToolbar /></div>
+            <div class="absolute bottom-0 left-0 sm:left-5"><SyncRoughToolbar /></div>
+          </Resizable.Pane>
+          {#if isHistoryOpen}
+            <Resizable.Handle class="ml-1 hidden opacity-0 sm:block" />
+            <Resizable.Pane
+              minSize={15}
+              defaultSize={30}
+              class="hidden h-full flex-grow flex-col sm:flex">
+              <History />
+            </Resizable.Pane>
+          {/if}
+        </Resizable.PaneGroup>
       </div>
-    </div>
+    {/if}
   </div>
 </div>
-
-<style>
-  #resizeHandler {
-    cursor: col-resize;
-    padding: 0 2px;
-  }
-
-  #resizeHandler::after {
-    width: 2px;
-    height: 100%;
-    top: 0;
-    content: '';
-    position: absolute;
-    background-color: hsla(var(--b3));
-    margin-left: -1px;
-    transition-duration: 0.2s;
-  }
-
-  #resizeHandler:hover::after {
-    margin-left: -2px;
-    background-color: hsla(var(--p));
-    width: 4px;
-  }
-</style>

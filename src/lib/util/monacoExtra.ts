@@ -2,6 +2,8 @@
 
 import type * as Monaco from 'monaco-editor';
 
+const commentRegex = /(?<!["'])%%(?![^"']*["']\)).*$/;
+
 export const initEditor = (monacoEditor: typeof Monaco): void => {
   monacoEditor.languages.register({ id: 'mermaid' });
   const requirementDiagrams = [
@@ -20,139 +22,7 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
       keywords: string[];
     }
   > = {
-    flowchart: {
-      typeKeywords: ['flowchart', 'flowchart-v2', 'graph'],
-      blockKeywords: ['subgraph', 'end'],
-      keywords: [
-        'TB',
-        'TD',
-        'BT',
-        'RL',
-        'LR',
-        'click',
-        'call',
-        'href',
-        '_self',
-        '_blank',
-        '_parent',
-        '_top',
-        'linkStyle',
-        'style',
-        'classDef',
-        'class',
-        'direction',
-        'interpolate'
-      ]
-    },
-    sequenceDiagram: {
-      typeKeywords: ['sequenceDiagram'],
-      blockKeywords: ['alt', 'par', 'and', 'loop', 'else', 'end', 'rect', 'opt', 'alt', 'rect'],
-      keywords: [
-        'participant',
-        'as',
-        'Note',
-        'note',
-        'right of',
-        'left of',
-        'over',
-        'activate',
-        'deactivate',
-        'autonumber',
-        'title',
-        'actor',
-        'accDescription',
-        'link',
-        'links'
-      ]
-    },
-    classDiagram: {
-      typeKeywords: ['classDiagram', 'classDiagram-v2'],
-      blockKeywords: ['class'],
-      keywords: [
-        'link',
-        'click',
-        'callback',
-        'call',
-        'href',
-        'cssClass',
-        'direction',
-        'TB',
-        'BT',
-        'RL',
-        'LR',
-        'title',
-        'accDescription',
-        'order'
-      ]
-    },
-    stateDiagram: {
-      typeKeywords: ['stateDiagram', 'stateDiagram-v2'],
-      blockKeywords: ['state', 'note', 'end'],
-      keywords: ['state', 'as', 'hide empty description', 'direction', 'TB', 'BT', 'RL', 'LR']
-    },
-    erDiagram: {
-      typeKeywords: ['erDiagram'],
-      blockKeywords: [],
-      keywords: ['title', 'accDescription']
-    },
-    journey: {
-      typeKeywords: ['journey'],
-      blockKeywords: ['section'],
-      keywords: ['title']
-    },
-    info: {
-      typeKeywords: ['info'],
-      blockKeywords: [],
-      keywords: ['showInfo']
-    },
-    gantt: {
-      typeKeywords: ['gantt'],
-      blockKeywords: [],
-      keywords: [
-        'title',
-        'dateFormat',
-        'axisFormat',
-        'todayMarker',
-        'section',
-        'excludes',
-        'inclusiveEndDates'
-      ]
-    },
-    requirementDiagram: {
-      typeKeywords: ['requirement', 'requirementDiagram'],
-      blockKeywords: [...requirementDiagrams, 'element'],
-      keywords: []
-    },
-    gitGraph: {
-      typeKeywords: ['gitGraph'],
-      blockKeywords: [],
-      keywords: [
-        'accTitle',
-        'accDescr',
-        'commit',
-        'cherry-pick',
-        'branch',
-        'merge',
-        'reset',
-        'checkout',
-        'LR',
-        'BT',
-        'id',
-        'msg',
-        'type',
-        'tag',
-        'NORMAL',
-        'REVERSE',
-        'HIGHLIGHT'
-      ]
-    },
-    pie: {
-      typeKeywords: ['pie'],
-      blockKeywords: [],
-      keywords: ['showData', 'title', 'accDescr', 'accTitle']
-    },
     c4Diagram: {
-      typeKeywords: ['C4Context', 'C4Container', 'C4Component', 'C4Dynamic', 'C4Deployment'],
       blockKeywords: [
         'Boundary',
         'Enterprise_Boundary',
@@ -203,21 +73,153 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
         'Rel_R',
         'Rel_Back',
         'RelIndex'
-      ]
+      ],
+      typeKeywords: ['C4Context', 'C4Container', 'C4Component', 'C4Dynamic', 'C4Deployment']
+    },
+    classDiagram: {
+      blockKeywords: ['class'],
+      keywords: [
+        'link',
+        'click',
+        'callback',
+        'call',
+        'href',
+        'cssClass',
+        'direction',
+        'TB',
+        'BT',
+        'RL',
+        'LR',
+        'title',
+        'accDescription',
+        'order'
+      ],
+      typeKeywords: ['classDiagram', 'classDiagram-v2']
+    },
+    erDiagram: {
+      blockKeywords: [],
+      keywords: ['title', 'accDescription'],
+      typeKeywords: ['erDiagram']
+    },
+    flowchart: {
+      blockKeywords: ['subgraph', 'end'],
+      keywords: [
+        'TB',
+        'TD',
+        'BT',
+        'RL',
+        'LR',
+        'click',
+        'call',
+        'href',
+        '_self',
+        '_blank',
+        '_parent',
+        '_top',
+        'linkStyle',
+        'style',
+        'classDef',
+        'class',
+        'direction',
+        'interpolate'
+      ],
+      typeKeywords: ['flowchart', 'flowchart-v2', 'graph']
+    },
+    gantt: {
+      blockKeywords: [],
+      keywords: [
+        'title',
+        'dateFormat',
+        'axisFormat',
+        'todayMarker',
+        'section',
+        'excludes',
+        'inclusiveEndDates'
+      ],
+      typeKeywords: ['gantt']
+    },
+    gitGraph: {
+      blockKeywords: [],
+      keywords: [
+        'accTitle',
+        'accDescr',
+        'commit',
+        'cherry-pick',
+        'branch',
+        'merge',
+        'reset',
+        'checkout',
+        'LR',
+        'BT',
+        'id',
+        'msg',
+        'type',
+        'tag',
+        'NORMAL',
+        'REVERSE',
+        'HIGHLIGHT'
+      ],
+      typeKeywords: ['gitGraph']
+    },
+    info: {
+      blockKeywords: [],
+      keywords: ['showInfo'],
+      typeKeywords: ['info']
+    },
+    journey: {
+      blockKeywords: ['section'],
+      keywords: ['title'],
+      typeKeywords: ['journey']
+    },
+    pie: {
+      blockKeywords: [],
+      keywords: ['showData', 'title', 'accDescr', 'accTitle'],
+      typeKeywords: ['pie']
+    },
+    requirementDiagram: {
+      blockKeywords: [...requirementDiagrams, 'element'],
+      keywords: [],
+      typeKeywords: ['requirement', 'requirementDiagram']
     },
     sankey: {
-      typeKeywords: ['sankey-beta'],
       blockKeywords: [],
-      keywords: []
+      keywords: [],
+      typeKeywords: ['sankey-beta']
+    },
+    sequenceDiagram: {
+      blockKeywords: ['alt', 'par', 'and', 'loop', 'else', 'end', 'rect', 'opt', 'alt', 'rect'],
+      keywords: [
+        'participant',
+        'as',
+        'Note',
+        'note',
+        'right of',
+        'left of',
+        'over',
+        'activate',
+        'deactivate',
+        'autonumber',
+        'title',
+        'actor',
+        'accDescription',
+        'link',
+        'links'
+      ],
+      typeKeywords: ['sequenceDiagram']
+    },
+    stateDiagram: {
+      blockKeywords: ['state', 'note', 'end'],
+      keywords: ['state', 'as', 'hide empty description', 'direction', 'TB', 'BT', 'RL', 'LR'],
+      typeKeywords: ['stateDiagram', 'stateDiagram-v2']
     }
   };
 
   const configDirectiveHandler = [
     /^\s*%%(?={)/,
     {
-      token: 'string',
       next: '@configDirective',
-      nextEmbedded: 'javascript'
+      nextEmbedded: 'javascript',
+      token: 'string'
     }
   ] as Monaco.languages.IShortMonarchLanguageRule1;
 
@@ -232,7 +234,6 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
           ])
         )
       )
-      // eslint-disable-next-line unicorn/no-array-reduce
       .reduce(
         (overallKeywords, nextKeyword) => ({
           ...overallKeywords,
@@ -241,157 +242,26 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
         {}
       ),
     tokenizer: {
-      root: [
-        [/^\s*gitGraph/m, 'typeKeyword', 'gitGraph'],
-        [/^\s*info/m, 'typeKeyword', 'info'],
-        [/^\s*pie/m, 'typeKeyword', 'pie'],
-        [/^\s*(flowchart|flowchart-v2|graph)/m, 'typeKeyword', 'flowchart'],
-        [/^\s*sequenceDiagram/, 'typeKeyword', 'sequenceDiagram'],
-        [/^\s*classDiagram(-v2)?/, 'typeKeyword', 'classDiagram'],
-        [/^\s*journey/, 'typeKeyword', 'journey'],
-        [/^\s*gantt/, 'typeKeyword', 'gantt'],
-        [/^\s*stateDiagram(-v2)?/, 'typeKeyword', 'stateDiagram'],
-        [/^\s*er(Diagram)?/, 'typeKeyword', 'erDiagram'],
-        [/^\s*requirement(Diagram)?/, 'typeKeyword', 'requirementDiagram'],
-        [/^\s*sankey-beta/m, 'typeKeyword', 'sankey'],
-        [
-          /^\s*(C4Context|C4Container|C4Component|C4Dynamic|C4Deployment)/m,
-          'typeKeyword',
-          'c4Diagram'
-        ],
-        configDirectiveHandler,
-        [/%%[^${].*$/, 'comment']
-      ],
-      configDirective: [[/%%$/, { token: 'string', next: '@pop', nextEmbedded: '@pop' }]],
-      gitGraph: [
-        configDirectiveHandler,
-        [/option(?=s)/, { token: 'typeKeyword', next: 'optionsGitGraph' }],
-        [/(accTitle|accDescr)(\s*:)(\s*[^\n\r]+$)/, ['keyword', 'delimiter.bracket', 'string']],
-        [
-          /(^\s*branch)(.*?)(\s+order)(:\s*)(\d+\s*$)/,
-          ['keyword', 'variable', 'keyword', 'delimiter.bracket', 'number']
-        ],
-        [/".*?"/, 'string'],
-        [
-          /(^\s*)(branch|reset|merge|checkout)(\s*\S+)/m,
-          ['delimiter.bracket', 'keyword', 'variable']
-        ],
-        [
-          /[A-Za-z][\w$]*/,
-          {
-            cases: {
-              '@gitGraphBlockKeywords': 'typeKeyword',
-              '@gitGraphKeywords': 'keyword'
-            }
-          }
-        ],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment'],
-        [/\^/, 'delimiter.bracket']
-      ],
-      optionsGitGraph: [
-        [
-          /s$/,
-          {
-            token: 'typeKeyword',
-            nextEmbedded: 'json'
-          }
-        ],
-        ['end', { token: 'typeKeyword', next: '@pop', nextEmbedded: '@pop' }]
-      ],
-      info: [
-        [
-          /[A-Za-z][\w$]*/,
-          {
-            cases: {
-              '@infoBlockKeywords': 'typeKeyword',
-              '@infoKeywords': 'keyword'
-            }
-          }
-        ]
-      ],
-      pie: [
+      c4Diagram: [
         configDirectiveHandler,
         [/(title|accDescription)(.*$)/, ['keyword', 'string']],
+        [/\(/, { next: 'c4DiagramParenthesis', token: 'delimiter.bracket' }],
         [
-          /[A-Za-z][\w$]*/,
+          /[A-Z_a-z-][\w$]*/,
           {
             cases: {
-              '@pieBlockKeywords': 'typeKeyword',
-              '@pieKeywords': 'keyword'
-            }
-          }
-        ],
-        [/".*?"/, 'string'],
-        [/\s*\d+/, 'number'],
-        [/:/, 'delimiter.bracket'],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment']
-      ],
-      flowchart: [
-        configDirectiveHandler,
-        [/[ox]?(--+|==+)[ox]/, 'transition'],
-        [
-          /[A-Za-z][\w$]*/,
-          {
-            cases: {
-              '@flowchartBlockKeywords': 'typeKeyword',
-              '@flowchartKeywords': 'keyword',
+              '@c4DiagramBlockKeywords': 'typeKeyword',
+              '@c4DiagramKeywords': 'keyword',
               '@default': 'variable'
             }
           }
         ],
-        [/\|+.+?\|+/, 'string'],
-        [/\[+(\\.+?[/\\]|\/.+?[/\\])]+/, 'string'],
-        [/[>[]+[^[\]|]+?]+/, 'string'],
-        [/{+.+?}+/, 'string'],
-        [/\(+.+?\)+/, 'string'],
-        [/-\.+->?/, 'transition'],
-        [/(-[.-])([^>-][^-]+?)(-{3,}|-{2,}>|\.-+>)/, ['transition', 'string', 'transition']],
-        [/(==+)([^=]+?)(={3,}|={2,}>)/, ['transition', 'string', 'transition']],
-        [/<?(--+|==+)>|===+|---+/, 'transition'],
-        [/:::/, 'transition'],
-        [/[&;]/, 'delimiter.bracket'],
-        [/".*?"/, 'string'],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment']
+        [commentRegex, 'comment']
       ],
-      sequenceDiagram: [
-        configDirectiveHandler,
-        [/(title:?|accDescription)([^\n\r;]*$)/, ['keyword', 'string']],
-        [/(autonumber)([^\S\n\r]+off[^\S\n\r]*$)/, ['keyword', 'keyword']],
-        [/(autonumber)((?:[^\S\n\r]+\d+){2}[^\S\n\r]*$)/, ['keyword', 'number']],
-        [/(autonumber)([^\S\n\r]+\d+[^\S\n\r]*$)/, ['keyword', 'number']],
-        [
-          /(link\s+)(.*?)(:)(\s*.*?)(\s*@)(\s*[^\n\r;]+)/,
-          ['keyword', 'variable', 'delimiter.bracket', 'string', 'delimiter.bracket', 'string']
-        ],
-        [
-          /((?:links|properties)\s+)([^\n\r:]*?)(:\s+)/,
-          [
-            { token: 'keyword' },
-            { token: 'variable' },
-            {
-              token: 'delimiter.bracket',
-              nextEmbedded: 'javascript',
-              next: '@sequenceDiagramLinksProps'
-            }
-          ]
-        ],
-        [
-          /[A-Za-z][\w$]*/,
-          {
-            cases: {
-              '@sequenceDiagramBlockKeywords': 'typeKeyword',
-              '@sequenceDiagramKeywords': 'keyword',
-              '@default': 'variable'
-            }
-          }
-        ],
-        [/(--?>?>|--?[)x])[+-]?/, 'transition'],
-        [/(:)([^\n:]*?$)/, ['delimiter.bracket', 'string']],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment']
-      ],
-      sequenceDiagramLinksProps: [
-        // [/^:/, { token: 'delimiter.bracket', nextEmbedded: 'json' }],
-        [/$|;/, { nextEmbedded: '@pop', next: '@pop', token: 'delimiter.bracket' }]
+      c4DiagramParenthesis: [
+        [/,/, 'delimiter.bracket'],
+        [/\)/, { next: '@pop', token: 'delimiter.bracket' }],
+        [/[^),]/, 'string']
       ],
       classDiagram: [
         configDirectiveHandler,
@@ -413,11 +283,103 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
             }
           }
         ],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment'],
+        [commentRegex, 'comment'],
         [/(<<)(.+?)(>>)/, ['delimiter.bracket', 'annotation', 'delimiter.bracket']],
         [/".*?"/, 'string'],
         [/:::/, 'transition'],
         [/:|\+|-|#|~|\*\s*$|\$\s*$|\(|\)|{|}/, 'delimiter.bracket']
+      ],
+      configDirective: [[/%%$/, { next: '@pop', nextEmbedded: '@pop', token: 'string' }]],
+      erDiagram: [
+        configDirectiveHandler,
+        [/(title|accDescription)(.*$)/, ['keyword', 'string']],
+        [/[|}][o|](--|\.\.)[o|][{|]/, 'transition'],
+        [/".*?"/, 'string'],
+        [/(:)(.*?$)/, ['delimiter.bracket', 'string']],
+        [/[:{}]/, 'delimiter.bracket'],
+        [/([A-Za-z]+)(\s+[A-Za-z]+)/, ['type', 'variable']],
+        [commentRegex, 'comment'],
+        [/[A-Z_a-z-][\w$]*/, 'variable']
+      ],
+      flowchart: [
+        configDirectiveHandler,
+        [/[ox]?(--+|==+)[ox]/, 'transition'],
+        [
+          /[A-Za-z][\w$]*/,
+          {
+            cases: {
+              '@default': 'variable',
+              '@flowchartBlockKeywords': 'typeKeyword',
+              '@flowchartKeywords': 'keyword'
+            }
+          }
+        ],
+        [/\|+.+?\|+/, 'string'],
+        [/\[+(\\.+?[/\\]|\/.+?[/\\])]+/, 'string'],
+        [/[>[]+[^[\]|]+?]+/, 'string'],
+        [/{+.+?}+/, 'string'],
+        [/\(+.+?\)+/, 'string'],
+        [/-\.+->?/, 'transition'],
+        [/(-[.-])([^>-][^-]+?)(-{3,}|-{2,}>|\.-+>)/, ['transition', 'string', 'transition']],
+        [/(==+)([^=]+?)(={3,}|={2,}>)/, ['transition', 'string', 'transition']],
+        [/<?(--+|==+)>|===+|---+/, 'transition'],
+        [/:::/, 'transition'],
+        [/[&;]/, 'delimiter.bracket'],
+        [/".*?"/, 'string'],
+        [commentRegex, 'comment']
+      ],
+      gantt: [
+        configDirectiveHandler,
+        [/(title)(.*)/, ['keyword', 'string']],
+        [/(section)(.*)/, ['typeKeyword', 'string']],
+        [/^\s*([^\n:]*?)(:)/, ['string', 'delimiter.bracket']],
+        [
+          /[A-Za-z][\w$]*/,
+          {
+            cases: {
+              '@ganttBlockKeywords': 'typeKeyword',
+              '@ganttKeywords': 'keyword'
+            }
+          }
+        ],
+        [commentRegex, 'comment'],
+        [/:/, 'delimiter.bracket']
+      ],
+      gitGraph: [
+        configDirectiveHandler,
+        [/option(?=s)/, { next: 'optionsGitGraph', token: 'typeKeyword' }],
+        [/(accTitle|accDescr)(\s*:)(\s*[^\n\r]+$)/, ['keyword', 'delimiter.bracket', 'string']],
+        [
+          /(^\s*branch)(.*?)(\s+order)(:\s*)(\d+\s*$)/,
+          ['keyword', 'variable', 'keyword', 'delimiter.bracket', 'number']
+        ],
+        [/".*?"/, 'string'],
+        [
+          /(^\s*)(branch|reset|merge|checkout)(\s*\S+)/m,
+          ['delimiter.bracket', 'keyword', 'variable']
+        ],
+        [
+          /[A-Za-z][\w$]*/,
+          {
+            cases: {
+              '@gitGraphBlockKeywords': 'typeKeyword',
+              '@gitGraphKeywords': 'keyword'
+            }
+          }
+        ],
+        [commentRegex, 'comment'],
+        [/\^/, 'delimiter.bracket']
+      ],
+      info: [
+        [
+          /[A-Za-z][\w$]*/,
+          {
+            cases: {
+              '@infoBlockKeywords': 'typeKeyword',
+              '@infoKeywords': 'keyword'
+            }
+          }
+        ]
       ],
       journey: [
         configDirectiveHandler,
@@ -427,9 +389,9 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
           /[A-Za-z][\w$]*/,
           {
             cases: {
+              '@default': 'variable',
               '@journeyBlockKeywords': 'typeKeyword',
-              '@journeyKeywords': 'keyword',
-              '@default': 'variable'
+              '@journeyKeywords': 'keyword'
             }
           }
         ],
@@ -446,63 +408,34 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
         ],
         [/,/, 'delimiter.bracket'],
         [/(^\s*.+?)(:)([^:]*?)$/, ['string', 'delimiter.bracket', 'variable']],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment']
+        [commentRegex, 'comment']
       ],
-      gantt: [
-        configDirectiveHandler,
-        [/(title)(.*)/, ['keyword', 'string']],
-        [/(section)(.*)/, ['typeKeyword', 'string']],
-        [/^\s*([^\n:]*?)(:)/, ['string', 'delimiter.bracket']],
+      optionsGitGraph: [
         [
-          /[A-Za-z][\w$]*/,
+          /s$/,
           {
-            cases: {
-              '@ganttBlockKeywords': 'typeKeyword',
-              '@ganttKeywords': 'keyword'
-            }
+            nextEmbedded: 'json',
+            token: 'typeKeyword'
           }
         ],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment'],
-        [/:/, 'delimiter.bracket']
+        ['end', { next: '@pop', nextEmbedded: '@pop', token: 'typeKeyword' }]
       ],
-      stateDiagram: [
-        configDirectiveHandler,
-        [/note[^:]*$/, { token: 'typeKeyword', next: 'stateDiagramNote' }],
-        ['hide empty description', 'keyword'],
-        [/^\s*state\s(?!.*{)/, 'keyword'],
-        [/(<<)(fork|join|choice)(>>)/, 'annotation'],
-        [/(\[\[)(fork|join|choice)(]])/, ['delimiter.bracket', 'annotation', 'delimiter.bracket']],
-        [
-          /[A-Za-z][\w$]*/,
-          {
-            cases: {
-              '@stateDiagramBlockKeywords': 'typeKeyword',
-              '@stateDiagramKeywords': 'keyword',
-              '@default': 'variable'
-            }
-          }
-        ],
-        [/".*?"/, 'string'],
-        [/(:)([^\n:]*?$)/, ['delimiter.bracket', 'string']],
-        [/{|}/, 'delimiter.bracket'],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment'],
-        [/-->/, 'transition'],
-        [/\[.*?]/, 'string']
-      ],
-      stateDiagramNote: [
-        [/^\s*end note$/, { token: 'typeKeyword', next: '@pop' }],
-        [/.*/, 'string']
-      ],
-      erDiagram: [
+      pie: [
         configDirectiveHandler,
         [/(title|accDescription)(.*$)/, ['keyword', 'string']],
-        [/[|}][o|](--|\.\.)[o|][{|]/, 'transition'],
+        [
+          /[A-Za-z][\w$]*/,
+          {
+            cases: {
+              '@pieBlockKeywords': 'typeKeyword',
+              '@pieKeywords': 'keyword'
+            }
+          }
+        ],
         [/".*?"/, 'string'],
-        [/(:)(.*?$)/, ['delimiter.bracket', 'string']],
-        [/[:{}]/, 'delimiter.bracket'],
-        [/([A-Za-z]+)(\s+[A-Za-z]+)/, ['type', 'variable']],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment'],
-        [/[A-Z_a-z-][\w$]*/, 'variable']
+        [/\s*\d+/, 'number'],
+        [/:/, 'delimiter.bracket'],
+        [commentRegex, 'comment']
       ],
       requirementDiagram: [
         configDirectiveHandler,
@@ -512,35 +445,35 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
           /[A-Z_a-z-][\w$]*/,
           {
             cases: {
-              '@requirementDiagramBlockKeywords': 'typeKeyword',
-              '@default': 'variable'
+              '@default': 'variable',
+              '@requirementDiagramBlockKeywords': 'typeKeyword'
             }
           }
         ],
         [/[/:{}]/, 'delimiter.bracket'],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment'],
+        [commentRegex, 'comment'],
         [/".*?"/, 'string']
       ],
-      c4Diagram: [
-        configDirectiveHandler,
-        [/(title|accDescription)(.*$)/, ['keyword', 'string']],
-        [/\(/, { token: 'delimiter.bracket', next: 'c4DiagramParenthesis' }],
+      root: [
+        [/^\s*gitGraph/m, 'typeKeyword', 'gitGraph'],
+        [/^\s*info/m, 'typeKeyword', 'info'],
+        [/^\s*pie/m, 'typeKeyword', 'pie'],
+        [/^\s*(flowchart|flowchart-v2|graph)/m, 'typeKeyword', 'flowchart'],
+        [/^\s*sequenceDiagram/, 'typeKeyword', 'sequenceDiagram'],
+        [/^\s*classDiagram(-v2)?/, 'typeKeyword', 'classDiagram'],
+        [/^\s*journey/, 'typeKeyword', 'journey'],
+        [/^\s*gantt/, 'typeKeyword', 'gantt'],
+        [/^\s*stateDiagram(-v2)?/, 'typeKeyword', 'stateDiagram'],
+        [/^\s*er(Diagram)?/, 'typeKeyword', 'erDiagram'],
+        [/^\s*requirement(Diagram)?/, 'typeKeyword', 'requirementDiagram'],
+        [/^\s*sankey-beta/m, 'typeKeyword', 'sankey'],
         [
-          /[A-Z_a-z-][\w$]*/,
-          {
-            cases: {
-              '@c4DiagramBlockKeywords': 'typeKeyword',
-              '@c4DiagramKeywords': 'keyword',
-              '@default': 'variable'
-            }
-          }
+          /^\s*(C4Context|C4Container|C4Component|C4Dynamic|C4Deployment)/m,
+          'typeKeyword',
+          'c4Diagram'
         ],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment']
-      ],
-      c4DiagramParenthesis: [
-        [/,/, 'delimiter.bracket'],
-        [/\)/, { next: '@pop', token: 'delimiter.bracket' }],
-        [/[^),]/, 'string']
+        configDirectiveHandler,
+        [/%%[^${].*$/, 'comment']
       ],
       sankey: [
         configDirectiveHandler,
@@ -550,39 +483,107 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
         [/[A-Za-z]+/, 'string'],
         [/\s*\d+/, 'number'],
         [/,/, 'delimiter.bracket'],
-        [/%%[^$]([^%]*(?!%%$)%?)*$/, 'comment']
+        [commentRegex, 'comment']
+      ],
+      sequenceDiagram: [
+        configDirectiveHandler,
+        [/(title:?|accDescription)([^\n\r;]*$)/, ['keyword', 'string']],
+        [/(autonumber)([^\S\n\r]+off[^\S\n\r]*$)/, ['keyword', 'keyword']],
+        [/(autonumber)((?:[^\S\n\r]+\d+){2}[^\S\n\r]*$)/, ['keyword', 'number']],
+        [/(autonumber)([^\S\n\r]+\d+[^\S\n\r]*$)/, ['keyword', 'number']],
+        [
+          /(link\s+)(.*?)(:)(\s*.*?)(\s*@)(\s*[^\n\r;]+)/,
+          ['keyword', 'variable', 'delimiter.bracket', 'string', 'delimiter.bracket', 'string']
+        ],
+        [
+          /((?:links|properties)\s+)([^\n\r:]*?)(:\s+)/,
+          [
+            { token: 'keyword' },
+            { token: 'variable' },
+            {
+              next: '@sequenceDiagramLinksProps',
+              nextEmbedded: 'javascript',
+              token: 'delimiter.bracket'
+            }
+          ]
+        ],
+        [
+          /[A-Za-z][\w$]*/,
+          {
+            cases: {
+              '@default': 'variable',
+              '@sequenceDiagramBlockKeywords': 'typeKeyword',
+              '@sequenceDiagramKeywords': 'keyword'
+            }
+          }
+        ],
+        [/(--?>?>|--?[)x])[+-]?/, 'transition'],
+        [/(:)([^\n:]*?$)/, ['delimiter.bracket', 'string']],
+        [commentRegex, 'comment']
+      ],
+      sequenceDiagramLinksProps: [
+        // [/^:/, { token: 'delimiter.bracket', nextEmbedded: 'json' }],
+        [/$|;/, { next: '@pop', nextEmbedded: '@pop', token: 'delimiter.bracket' }]
+      ],
+      stateDiagram: [
+        configDirectiveHandler,
+        [/note[^:]*$/, { next: 'stateDiagramNote', token: 'typeKeyword' }],
+        ['hide empty description', 'keyword'],
+        [/^\s*state\s(?!.*{)/, 'keyword'],
+        [/(<<)(fork|join|choice)(>>)/, 'annotation'],
+        [/(\[\[)(fork|join|choice)(]])/, ['delimiter.bracket', 'annotation', 'delimiter.bracket']],
+        [
+          /[A-Za-z][\w$]*/,
+          {
+            cases: {
+              '@default': 'variable',
+              '@stateDiagramBlockKeywords': 'typeKeyword',
+              '@stateDiagramKeywords': 'keyword'
+            }
+          }
+        ],
+        [/".*?"/, 'string'],
+        [/(:)([^\n:]*?$)/, ['delimiter.bracket', 'string']],
+        [/{|}/, 'delimiter.bracket'],
+        [commentRegex, 'comment'],
+        [/-->/, 'transition'],
+        [/\[.*?]/, 'string']
+      ],
+      stateDiagramNote: [
+        [/^\s*end note$/, { next: '@pop', token: 'typeKeyword' }],
+        [/.*/, 'string']
       ]
     }
   });
 
   monacoEditor.editor.defineTheme('mermaid-dark', {
     base: 'vs-dark',
-    inherit: true,
     colors: {},
+    inherit: true,
     rules: [
-      { token: 'typeKeyword', foreground: '9650c8', fontStyle: 'bold' },
-      { token: 'transition', foreground: '008800', fontStyle: 'bold' },
-      { token: 'identifier', foreground: '9cdcfe' }
+      { fontStyle: 'bold', foreground: '9650c8', token: 'typeKeyword' },
+      { fontStyle: 'bold', foreground: '008800', token: 'transition' },
+      { foreground: '9cdcfe', token: 'identifier' }
     ]
   });
 
   monacoEditor.editor.defineTheme('mermaid', {
     base: 'vs',
-    inherit: true,
     colors: {},
+    inherit: true,
     rules: [
-      { token: 'typeKeyword', foreground: '9650c8', fontStyle: 'bold' },
-      { token: 'keyword', foreground: '649696' },
-      { token: 'custom-error', foreground: 'ff0000', fontStyle: 'bold' },
-      { token: 'string', foreground: 'AA8500' },
-      { token: 'transition', foreground: '008800', fontStyle: 'bold' },
-      { token: 'delimiter.bracket', foreground: '000000', fontStyle: 'bold' },
-      { token: 'annotation', foreground: '4b4b96' },
-      { token: 'number', foreground: '4b4b96' },
-      { token: 'comment', foreground: '888c89' },
-      { token: 'variable', foreground: 'A22889' },
-      { token: 'type', foreground: '2BDEA8' },
-      { token: 'identifier', foreground: '9cdcfe' }
+      { fontStyle: 'bold', foreground: '9650c8', token: 'typeKeyword' },
+      { foreground: '649696', token: 'keyword' },
+      { fontStyle: 'bold', foreground: 'ff0000', token: 'custom-error' },
+      { foreground: 'AA8500', token: 'string' },
+      { fontStyle: 'bold', foreground: '008800', token: 'transition' },
+      { fontStyle: 'bold', foreground: '000000', token: 'delimiter.bracket' },
+      { foreground: '4b4b96', token: 'annotation' },
+      { foreground: '4b4b96', token: 'number' },
+      { foreground: '888c89', token: 'comment' },
+      { foreground: 'A22889', token: 'variable' },
+      { foreground: '2BDEA8', token: 'type' },
+      { foreground: '9cdcfe', token: 'identifier' }
     ]
   });
 
@@ -597,16 +598,16 @@ export const initEditor = (monacoEditor: typeof Monaco): void => {
   monacoEditor.languages.setLanguageConfiguration('mermaid', {
     autoClosingPairs: [
       {
-        open: '(',
-        close: ')'
+        close: ')',
+        open: '('
       },
       {
-        open: '{',
-        close: '}'
+        close: '}',
+        open: '{'
       },
       {
-        open: '[',
-        close: ']'
+        close: ']',
+        open: '['
       }
     ],
     brackets: [

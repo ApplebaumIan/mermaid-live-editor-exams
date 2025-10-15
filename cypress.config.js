@@ -13,7 +13,7 @@ export default defineConfig({
     openMode: 0
   },
   e2e: {
-    setupNodeEvents(on, config) {
+    setupNodeEvents(on) {
       on('task', {
         readAndDeleteFile({ fileNamePattern, folder, mode }) {
           const fileNameRegex = new RegExp(fileNamePattern);

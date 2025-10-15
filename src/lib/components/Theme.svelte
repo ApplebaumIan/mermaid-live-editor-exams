@@ -48,10 +48,10 @@
         d="M1395 736q0 13-10 23l-466 466q-10 10-23 10t-23-10l-466-466q-10-10-10-23t10-23l50-50q10-10 23-10t23 10l393 393 393-393q10-10 23-10t23 10l50 50q10 10 10 23z" /></svg>
   </div>
   <div
-    class="dropdown-content top-px mt-14 h-96 w-56 overflow-y-auto bg-base-200 text-base-content shadow-2xl">
+    class="dropdown-content bg-base-200 text-base-content top-px mt-14 h-96 w-56 overflow-y-auto shadow-2xl">
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
     <ul tabindex="0" class="menu compact p-4">
-      {#each themes as theme}
+      {#each themes as theme (theme)}
         <li class:bordered={$themeStore.theme !== undefined && theme.includes($themeStore.theme)}>
           <span
             role="menuitem"

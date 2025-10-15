@@ -185,13 +185,11 @@ function getBrowserStorage(
     }
   };
   const connect = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (listenExternalChanges && typeof window !== 'undefined' && window.addEventListener) {
       window.addEventListener('storage', listenerFunction);
     }
   };
   const disconnect = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (listenExternalChanges && typeof window !== 'undefined' && window.removeEventListener) {
       window.removeEventListener('storage', listenerFunction);
     }
@@ -204,6 +202,13 @@ function getBrowserStorage(
         connect();
       }
     },
+    deleteValue(key: string) {
+      browserStorage.removeItem(key);
+    },
+    getValue(key: string): any {
+      const value = browserStorage.getItem(key);
+      return deserialize(value);
+    },
     removeListener(key: string, listener: (newValue: any) => void) {
       const index = listeners.indexOf({ key, listener });
       if (index !== -1) {
@@ -212,13 +217,6 @@ function getBrowserStorage(
       if (listeners.length === 0) {
         disconnect();
       }
-    },
-    getValue(key: string): any {
-      const value = browserStorage.getItem(key);
-      return deserialize(value);
-    },
-    deleteValue(key: string) {
-      browserStorage.removeItem(key);
     },
     setValue(key: string, value: any) {
       browserStorage.setItem(key, serialize(value));
@@ -231,7 +229,6 @@ function getBrowserStorage(
  * @param listenExternalChanges - Update the store if the localStorage is updated from another page
  */
 export function localStorage<T>(listenExternalChanges = false): StorageInterface<T> {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (typeof window !== 'undefined' && window.localStorage) {
     return getBrowserStorage(window.localStorage, listenExternalChanges);
   }
