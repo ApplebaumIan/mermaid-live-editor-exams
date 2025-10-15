@@ -18,6 +18,7 @@
 
   const panZoomState = new PanZoomState();
 
+
   let width = $state(0);
   let isMobile = $derived(width < 640);
   let isViewMode = $state(false);
