@@ -10,6 +10,12 @@
 /node_modules
 /snapshots.js
 
+# IDE
+.idea/
+
+# pnpm
+.pnpm-store/
+
 # Playwright
 /test-results/
 /playwright-report/
