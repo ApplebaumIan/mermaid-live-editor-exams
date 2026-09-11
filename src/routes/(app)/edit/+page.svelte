@@ -5,6 +5,7 @@
   import Editor from '$/components/Editor.svelte';
   import EnhancedEditsButton from '$/components/EnhancedEditsButton.svelte';
   import History from '$/components/History/History.svelte';
+  import { startAutoSave } from '$/components/History/historyState.svelte';
   import McWrapper from '$/components/McWrapper.svelte';
   import MermaidChartIcon from '$/components/MermaidChartIcon.svelte';
   import EditorChooserModal from '$/components/migration/EditorChooserModal.svelte';
@@ -22,7 +23,7 @@
   import type { EditorMode, Tab } from '$/types';
   import { shouldShowEditorChooser } from '$/util/migration/domainMigration';
   import { PanZoomState } from '$/util/panZoom';
-  import { stateStore, updateCodeStore, urlsStore } from '$/util/state';
+  import { validatedState, updateCodeStore, urls } from '$/util/state.svelte';
   import { logEvent, logMermaidChartClick } from '$/util/stats';
   import { initHandler } from '$/util/util';
   import { onMount } from 'svelte';
@@ -63,6 +64,9 @@
     });
   });
 
+  // Record the Timeline for the whole session, not just while the panel is open.
+  onMount(() => startAutoSave());
+
   let isHistoryOpen = $state(false);
 
   let editorPane: Resizable.Pane | undefined;
@@ -87,7 +91,7 @@
   {/snippet}
 
   <Navbar mobileToggle={isMobile ? mobileToggle : undefined}>
-    <Toggle bind:pressed={isHistoryOpen} size="sm">
+    <Toggle bind:pressed={isHistoryOpen} size="sm" title="History" aria-label="History">
       <HistoryIcon />
     </Toggle>
     <Share />
@@ -95,7 +99,7 @@
       <Button
         variant="accent"
         size="sm"
-        href={$urlsStore.mermaidChart({ medium: 'save_diagram' }).save}
+        href={urls.current.mermaidChart({ medium: 'save_diagram' }).save}
         target="_blank"
         onclick={() => logMermaidChartClick('saveDiagram')}>
         <MermaidChartIcon />
@@ -120,7 +124,7 @@
               onselect={tabSelectHandler}
               isOpen
               tabs={editorTabs}
-              activeTabID={$stateStore.editorMode}
+              activeTabID={validatedState.current.editorMode}
               isClosable={false}>
               {#snippet actions()}
                 <DiagramDocButton />
@@ -136,9 +140,11 @@
         </Resizable.Pane>
         <Resizable.Handle class="mr-1 hidden opacity-0 sm:block" />
         <Resizable.Pane minSize={15} class="relative flex h-full flex-1 flex-col overflow-hidden">
-          <View {panZoomState} shouldShowGrid={$stateStore.grid} />
+          <View {panZoomState} shouldShowGrid={validatedState.current.grid} />
           <div class="absolute top-0 left-5 hidden md:block"><EnhancedEditsButton /></div>
-          <div class="absolute top-0 right-0"><PanZoomToolbar {panZoomState} /></div>
+          <div class="absolute top-0 right-0">
+            <PanZoomToolbar {panZoomState} fullScreenHref={urls.current.view} />
+          </div>
           <div class="absolute right-0 bottom-0"><VersionSecurityToolbar /></div>
           <div class="absolute bottom-0 left-0 sm:left-5"><SyncRoughToolbar /></div>
         </Resizable.Pane>
