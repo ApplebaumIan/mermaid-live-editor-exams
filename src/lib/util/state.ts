@@ -12,6 +12,7 @@ import {
 import { parse } from './mermaid';
 import { localStorage, persist } from './persist';
 import { deserializeState, pakoSerde, serializeState } from './serde';
+import { getStorageKey, hasStoredValue, hasStorageInstance } from './storage';
 import { errorDebug, formatJSON, MCBaseURL } from './util';
 
 export const defaultState: State = {
@@ -43,7 +44,12 @@ const urlParseFailedState = `flowchart TD
     click D href "https://github.com/mermaid-js/mermaid-live-editor/issues/new?assignees=&labels=bug&template=bug_report.md&title=Broken%20link" "Raise issue"`;
 
 // inputStateStore handles all updates and is shared externally when exporting via URL, History, etc.
-export const inputStateStore = persist(writable(defaultState), localStorage(), 'codeStore');
+export const shouldLoadStarterState = !hasStorageInstance || !hasStoredValue('codeStore');
+export const inputStateStore = persist(
+  writable(defaultState),
+  localStorage(),
+  getStorageKey('codeStore')
+);
 
 export const currentState: ValidatedState = (() => {
   const state = get(inputStateStore);

@@ -2,7 +2,13 @@ import { env } from './env';
 import { loadDataFromUrl } from './fileLoaders/loader';
 import { initLoading } from './loading';
 import { applyMigrations } from './migrations';
-import { initURLSubscription, loadState, updateCodeStore, verifyState } from './state';
+import {
+  initURLSubscription,
+  loadState,
+  shouldLoadStarterState,
+  updateCodeStore,
+  verifyState
+} from './state';
 import { initAnalytics, plausible } from './stats';
 
 export const getDomain = (url?: string): string => {
@@ -11,8 +17,12 @@ export const getDomain = (url?: string): string => {
   return domain;
 };
 
+let hasInitializedState = false;
+
 export const loadStateFromURL = (): void => {
-  loadState(window.location.hash.slice(1));
+  const shouldLoad = hasInitializedState || shouldLoadStarterState;
+  hasInitializedState = true;
+  if (shouldLoad) loadState(window.location.hash.slice(1));
 };
 
 export const syncDiagram = (): void => {
