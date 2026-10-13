@@ -2,30 +2,15 @@
   import McWrapper from '$/components/McWrapper.svelte';
   import MermaidChartIcon from '$/components/MermaidChartIcon.svelte';
   import { Button } from '$/components/ui/button';
-  import { standardizeDiagramType } from '$/util/mermaid';
-  import { stateStore, urlsStore } from '$/util/state';
+  import { describeDiagram } from '$/util/diagramTypes';
+  import { validatedState, urls } from '$/util/state.svelte';
   import { logMermaidChartClick } from '$/util/stats';
   import { quintInOut } from 'svelte/easing';
   import { slide } from 'svelte/transition';
 
-  const visualEditDiagramTypes = new Set([
-    'flowchart',
-    'stateDiagram',
-    'classDiagram',
-    'sequenceDiagram',
-    'er',
-    'requirement',
-    'mindmap'
-  ]);
-
-  const diagramType = $derived.by(() => {
-    const dt = $stateStore.diagramType;
-    return dt ? standardizeDiagramType(dt) : undefined;
-  });
-
-  const showVisualEdit = $derived.by(() => {
-    return diagramType ? visualEditDiagramTypes.has(diagramType) : false;
-  });
+  const showVisualEdit = $derived(
+    describeDiagram(validatedState.current.diagramType)?.visualEdit ?? false
+  );
 
   interface EnhancedEditAction {
     campaign: string;
@@ -39,7 +24,7 @@
   let currentActionIndex = $state(0);
 
   const availableActions = $derived.by<EnhancedEditAction[]>(() => {
-    if (!$stateStore.diagramType) {
+    if (!validatedState.current.diagramType) {
       return [];
     }
 
@@ -98,7 +83,7 @@
     <Button
       variant="secondary"
       size="sm"
-      href={$urlsStore.mermaidChart({
+      href={urls.current.mermaidChart({
         medium: currentAction.medium,
         campaign: currentAction.campaign
       }).save}

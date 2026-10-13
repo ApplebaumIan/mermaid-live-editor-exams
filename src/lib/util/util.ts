@@ -1,10 +1,10 @@
 import { C } from '$/constants';
-import { env } from './env';
+import { MCBaseURL } from './env';
 import { loadDataFromUrl } from './fileLoaders/loader';
-import { initLoading } from './loading';
+import { initLoading } from './loading.svelte';
 import { isOnMermaidAI } from './migration/domainMigration';
-import { applyMigrations } from './migrations';
-import { initURLSubscription, loadState, updateCodeStore, verifyState } from './state';
+import { applyMigrations } from './migrations.svelte';
+import { initURLSubscription, loadState, updateCodeStore, verifyState } from './state.svelte';
 import { getAnalyticsSafeUrl, initAnalytics, plausible } from './stats';
 
 export const getDomain = (url?: string): string => {
@@ -38,9 +38,7 @@ export const initHandler = async (): Promise<void> => {
 
 export const isMac = navigator.platform.toUpperCase().includes('MAC');
 export const cmdKey = isMac ? 'Cmd' : 'Ctrl';
-export const MCBaseURL = env.isEnabledMermaidChartLinks
-  ? 'https://mermaid.ai' // 'http://localhost:5174'
-  : 'https://example.com';
+export { MCBaseURL };
 
 const buildUtmParams = ({
   utmCampaign,
@@ -64,6 +62,16 @@ export const getCheckoutUrl = (utm: { utmCampaign: string; utmMedium: string }):
 
 export const getMermaidAiLiveUrl = (utm: { utmCampaign: string; utmMedium: string }): string => {
   return `${MCBaseURL}/live?${buildUtmParams(utm).toString()}`;
+};
+
+export const getContactSalesUrl = (): string => {
+  const params = new URLSearchParams({
+    contactSubject: 'contactSales',
+    utm_campaign: 'contact_sales',
+    utm_medium: 'button',
+    utm_source: getUTMSource()
+  });
+  return `${MCBaseURL}/contact-us?${params.toString()}`;
 };
 
 let count = 0;
